@@ -1,4 +1,7 @@
 const express = require('express');
+const multer  = require('multer')
+const upload = multer({ dest: 'uploads/' })
+
 const hbs = require('express-handlebars');
 const path = require('path');
 
@@ -7,6 +10,19 @@ app.engine('hbs', hbs({ extname: 'hbs', layoutsDir: './layouts', defaultLayout: 
 app.set('view engine', '.hbs');
 
 app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.urlencoded({ extended: false }));
+
+app.post('/contact/send-message', upload.single('poster'), (req, res) => {
+  const { author, sender, title, message, poster } = req.body;
+
+  if(author && sender && title && message) {
+    res.render('contact', { isSent: true, file: req.file });
+  }
+  else {
+    res.render('contact', { isError: true });
+  }
+
+});
 
 app.get('/hello/:name', (req, res) => {
   res.render('hello', { name: req.params.name });
